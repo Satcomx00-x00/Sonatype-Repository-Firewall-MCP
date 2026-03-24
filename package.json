@@ -1,0 +1,48 @@
+{
+  "name": "@satcomx00-x00/sonatype-repository-firewall-mcp",
+  "version": "1.0.0",
+  "description": "A state-of-the-art Model Context Protocol (MCP) server for the Sonatype Repository Firewall / IQ Server REST API",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "sonatype-firewall-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "lint": "tsc --noEmit",
+    "test": "echo \"No tests defined\" && exit 0"
+  },
+  "keywords": [
+    "mcp",
+    "sonatype",
+    "nexus",
+    "firewall",
+    "security",
+    "openapi"
+  ],
+  "author": "",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Satcomx00-x00/Sonatype-Repository-Firewall-MCP.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Satcomx00-x00/Sonatype-Repository-Firewall-MCP/issues"
+  },
+  "homepage": "https://github.com/Satcomx00-x00/Sonatype-Repository-Firewall-MCP#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "fastmcp": "^3.34.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
+  }
+}
