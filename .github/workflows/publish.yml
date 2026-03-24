@@ -1,10 +1,12 @@
 name: Publish to npm
 
+# Triggered automatically when release-please creates a version tag
+# (e.g. v1.2.3) after merging a release PR.  A manual dispatch allows
+# re-publishing a specific tag without creating a new release.
 on:
-  release:
-    types:
-      - published
-  # Allow manual trigger for re-publishing
+  push:
+    tags:
+      - "v*"
   workflow_dispatch:
     inputs:
       tag:
@@ -23,13 +25,24 @@ jobs:
     environment: npm-publish
 
     steps:
+      - name: Resolve tag
+        id: tag
+        run: |
+          # On a tag push github.ref is refs/tags/vX.Y.Z; strip the prefix.
+          # On a manual dispatch use the provided input.
+          TAG="${{ github.ref_name }}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ inputs.tag }}"
+          fi
+          echo "value=${TAG}" >> "$GITHUB_OUTPUT"
+
       - name: Checkout repository (full history)
         uses: actions/checkout@v4
         with:
           # Full history is required so git-cliff can see all previous tags and
           # build accurate per-release notes for the current tag.
           fetch-depth: 0
-          ref: ${{ github.event.release.tag_name || inputs.tag }}
+          ref: ${{ steps.tag.outputs.value }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -71,7 +84,7 @@ jobs:
       - name: Attach release notes to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.event.release.tag_name || inputs.tag }}
+          TAG: ${{ steps.tag.outputs.value }}
         run: |
           if [ -s /tmp/release-notes.md ]; then
             gh release edit "$TAG" --notes-file /tmp/release-notes.md
