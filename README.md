@@ -190,6 +190,52 @@ src/
 
 ---
 
+## CI / CD
+
+The repository ships two GitHub Actions workflows:
+
+### `ci.yml` — Continuous Integration
+
+Runs on every **push** and **pull request** targeting `main` / `master`:
+
+1. Checks out the code
+2. Installs dependencies with `npm ci`
+3. Type-checks with `tsc --noEmit`
+4. Builds with `tsc`
+5. Runs `npm test`
+
+Tests against Node.js **18**, **20**, and **22** in parallel.
+
+### `publish.yml` — Publish to npm
+
+Triggered when a **GitHub Release is published** (or manually via `workflow_dispatch`):
+
+1. Builds the package
+2. Verifies contents with `npm pack --dry-run`
+3. Publishes to the **public npm registry** with provenance attestation
+
+#### Required secret
+
+Add `NPM_TOKEN` to your repository secrets (**Settings → Secrets and variables → Actions**):
+
+1. Generate an **Automation** token at <https://www.npmjs.com/settings/~/tokens>
+2. Add it as `NPM_TOKEN` in the repository / environment secrets
+3. The workflow uses the `npm-publish` GitHub environment — create that environment in **Settings → Environments** and scope the secret there for additional protection
+
+#### Releasing a new version
+
+```bash
+# Bump version
+npm version patch   # or minor / major
+
+# Push commit + tag
+git push --follow-tags
+
+# Create a GitHub Release from the tag — the publish workflow fires automatically
+```
+
+---
+
 ## License
 
 GPL-3.0 — See [LICENSE](./LICENSE)
