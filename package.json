@@ -1,6 +1,6 @@
 {
   "name": "@satcomx00-x00/sonatype-repository-firewall-mcp",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A state-of-the-art Model Context Protocol (MCP) server for the Sonatype Repository Firewall / IQ Server REST API",
   "type": "module",
   "main": "dist/index.js",

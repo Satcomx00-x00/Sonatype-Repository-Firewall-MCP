@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.0](https://github.com/Satcomx00-x00/Sonatype-Repository-Firewall-MCP/compare/v0.0.1...v0.1.0) (2026-03-24)
+
+
+### 🚀 Features
+
+* implement Sonatype Repository Firewall MCP server using FastMCP and Zod ([7e979df](https://github.com/Satcomx00-x00/Sonatype-Repository-Firewall-MCP/commit/7e979df2976f269feedfe8322fff1fa868c97bb2))
+
+
+### 🐛 Bug Fixes
+
+* add packages map to release-please-config and fix manifest version ([29b5f0d](https://github.com/Satcomx00-x00/Sonatype-Repository-Firewall-MCP/commit/29b5f0d3d3ba1eace58ad21a794c4bd0a6aa0112))
+* release-please never creates a release, publish job always skipped ([b597276](https://github.com/Satcomx00-x00/Sonatype-Repository-Firewall-MCP/commit/b5972766dc37464745224d98d279492a577aefea))
+
+
+### 👷 CI/CD
+
+* add commitlint, release-please automation, and branch protection ([9e834d5](https://github.com/Satcomx00-x00/Sonatype-Repository-Firewall-MCP/commit/9e834d50fc44270cc6143bf0e5af90449091656c))
+* add git-cliff changelog generation ([e8312e5](https://github.com/Satcomx00-x00/Sonatype-Repository-Firewall-MCP/commit/e8312e50228df40be82be74effb539574a8ffce8))
+* add git-cliff changelog generation to CI ([23e82a7](https://github.com/Satcomx00-x00/Sonatype-Repository-Firewall-MCP/commit/23e82a79fe2923409e477e14bc3de9c9e2387bfa))
+* add GitHub Actions workflows for CI and npm publish ([44cbf0b](https://github.com/Satcomx00-x00/Sonatype-Repository-Firewall-MCP/commit/44cbf0baae61a41d2d179ddc4a923227995bb3c9))
+* disable body-max-line-length rule to allow long URL trailers ([d441019](https://github.com/Satcomx00-x00/Sonatype-Repository-Firewall-MCP/commit/d4410194e313c79a602e1f179779c3e655753911))
+* fix commitlint failure on legacy "Initial plan" commit ([3c63105](https://github.com/Satcomx00-x00/Sonatype-Repository-Firewall-MCP/commit/3c631052255209cd4c554d78aa7e7351e311ccdc))
+* limit commitlint to latest commit to fix historical messages ([511c9b2](https://github.com/Satcomx00-x00/Sonatype-Repository-Firewall-MCP/commit/511c9b245b3417a1297610bc5df37fa732d01965))
+* update ([201269b](https://github.com/Satcomx00-x00/Sonatype-Repository-Firewall-MCP/commit/201269b7b478714473d34e41ee25efe01b2fbb38))
+* use JS commitlint config with ignores to fix Initial plan lint failure ([92b534e](https://github.com/Satcomx00-x00/Sonatype-Repository-Firewall-MCP/commit/92b534e7c6adef2f05f96682ad49b45713e36533))
+
 ## [Unreleased]
 
 ### 🚀 Features
