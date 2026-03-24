@@ -7,9 +7,11 @@ on:
 
 # release-please needs write access to open and update release PRs,
 # bump package.json and create the GitHub Release / tag.
+# id-token: write is forwarded to the publish workflow for npm provenance.
 permissions:
   contents: write
   pull-requests: write
+  id-token: write
 
 jobs:
   release-please:
@@ -30,3 +32,15 @@ jobs:
           # current version so release-please can compute the next bump.
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+  # The GITHUB_TOKEN used by release-please cannot trigger other
+  # workflows, so the "release: published" event in publish.yml will
+  # never fire on its own.  Chain the publish workflow explicitly.
+  publish:
+    name: Publish to npm
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    uses: ./.github/workflows/publish.yml
+    with:
+      tag: ${{ needs.release-please.outputs.tag_name }}
+    secrets: inherit
