@@ -1,12 +1,11 @@
 name: Publish to npm
 
-# Triggered automatically when release-please creates a version tag
-# (e.g. v1.2.3) after merging a release PR.  A manual dispatch allows
-# re-publishing a specific tag without creating a new release.
+# Triggered automatically when a GitHub Release is published (which
+# release-please does after merging a release PR).  A manual dispatch
+# allows re-publishing a specific tag without creating a new release.
 on:
-  push:
-    tags:
-      - "v*"
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       tag:
@@ -28,11 +27,12 @@ jobs:
       - name: Resolve tag
         id: tag
         run: |
-          # On a tag push github.ref is refs/tags/vX.Y.Z; strip the prefix.
+          # On a release event use the tag attached to the release.
           # On a manual dispatch use the provided input.
-          TAG="${{ github.ref_name }}"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             TAG="${{ inputs.tag }}"
+          else
+            TAG="${{ github.event.release.tag_name }}"
           fi
           echo "value=${TAG}" >> "$GITHUB_OUTPUT"
 
