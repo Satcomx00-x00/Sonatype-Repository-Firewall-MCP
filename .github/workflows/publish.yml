@@ -12,7 +12,7 @@ on:
         required: true
 
 permissions:
-  contents: read
+  contents: write  # Required to update the GitHub Release body with generated notes
   id-token: write  # Required for npm provenance attestation
 
 jobs:
@@ -23,10 +23,12 @@ jobs:
     environment: npm-publish
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repository (full history)
         uses: actions/checkout@v4
         with:
-          # Checkout the exact tag that triggered the release
+          # Full history is required so git-cliff can see all previous tags and
+          # build accurate per-release notes for the current tag.
+          fetch-depth: 0
           ref: ${{ github.event.release.tag_name || inputs.tag }}
 
       - name: Set up Node.js
@@ -50,6 +52,33 @@ jobs:
 
       - name: Verify package contents
         run: npm pack --dry-run
+
+      - name: Generate release notes with git-cliff
+        id: cliff
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          # --latest   : generate notes only for the most recent tag (this release)
+          # --strip all: omit the global header/footer so the output is pure body
+          # --verbose  : emit progress info in the run log
+          args: --verbose --latest --strip all
+        env:
+          # Write release notes to a temp file consumed by the next step.
+          OUTPUT: /tmp/release-notes.md
+          # Allows git-cliff to resolve contributor usernames and PR numbers.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Attach release notes to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
+        run: |
+          if [ -s /tmp/release-notes.md ]; then
+            gh release edit "$TAG" --notes-file /tmp/release-notes.md
+            echo "Release notes updated for $TAG"
+          else
+            echo "git-cliff produced no output — keeping original release notes."
+          fi
 
       - name: Publish to npm (public registry)
         run: npm publish --access public --provenance
