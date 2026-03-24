@@ -42,6 +42,11 @@ jobs:
         uses: wagoid/commitlint-github-action@v6
         with:
           configFile: .commitlintrc.json
+          # Only validate the most recent commit so that pre-existing
+          # historical commits do not block PR merges. This works well
+          # with the squash-merge / linear-history strategy enforced by
+          # branch protection.
+          commitDepth: 1
 
   build:
     name: Lint & Build
