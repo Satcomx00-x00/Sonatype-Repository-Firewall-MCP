@@ -32,10 +32,15 @@ jobs:
           # current version so release-please can compute the next bump.
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+          # A PAT (stored as RELEASE_TOKEN) is required when the repository
+          # setting "Allow GitHub Actions to create and approve pull requests"
+          # is disabled, because the default GITHUB_TOKEN will be rejected.
+          # Create a classic PAT with repo scope and save it as RELEASE_TOKEN.
+          token: ${{ secrets.RELEASE_TOKEN }}
 
-  # The GITHUB_TOKEN used by release-please cannot trigger other
-  # workflows, so the "release: published" event in publish.yml will
-  # never fire on its own.  Chain the publish workflow explicitly.
+  # When release-please uses RELEASE_TOKEN (a PAT) it CAN trigger other
+  # workflows, but we chain the publish workflow explicitly here to ensure
+  # reliable publishing regardless of the token type used.
   publish:
     name: Publish to npm
     needs: release-please
