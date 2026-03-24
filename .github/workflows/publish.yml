@@ -1,0 +1,86 @@
+name: Publish to npm
+
+on:
+  release:
+    types:
+      - published
+  # Allow manual trigger for re-publishing
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Git tag to publish (e.g. v1.0.0)"
+        required: true
+
+permissions:
+  contents: write  # Required to update the GitHub Release body with generated notes
+  id-token: write  # Required for npm provenance attestation
+
+jobs:
+  publish:
+    name: Build & Publish
+    runs-on: ubuntu-latest
+
+    environment: npm-publish
+
+    steps:
+      - name: Checkout repository (full history)
+        uses: actions/checkout@v4
+        with:
+          # Full history is required so git-cliff can see all previous tags and
+          # build accurate per-release notes for the current tag.
+          fetch-depth: 0
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Run tests
+        run: npm test
+
+      - name: Verify package contents
+        run: npm pack --dry-run
+
+      - name: Generate release notes with git-cliff
+        id: cliff
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          # --latest   : generate notes only for the most recent tag (this release)
+          # --strip all: omit the global header/footer so the output is pure body
+          # --verbose  : emit progress info in the run log
+          args: --verbose --latest --strip all
+        env:
+          # Write release notes to a temp file consumed by the next step.
+          OUTPUT: /tmp/release-notes.md
+          # Allows git-cliff to resolve contributor usernames and PR numbers.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Attach release notes to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
+        run: |
+          if [ -s /tmp/release-notes.md ]; then
+            gh release edit "$TAG" --notes-file /tmp/release-notes.md
+            echo "Release notes updated for $TAG"
+          else
+            echo "git-cliff produced no output — keeping original release notes."
+          fi
+
+      - name: Publish to npm (public registry)
+        run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
