@@ -11,6 +11,12 @@ on:
       tag:
         description: "Git tag to publish (e.g. v1.0.0)"
         required: true
+  workflow_call:
+    inputs:
+      tag:
+        description: "Git tag to publish (e.g. v1.0.0)"
+        required: true
+        type: string
 
 permissions:
   contents: write  # Required to update the GitHub Release body with generated notes
@@ -27,9 +33,9 @@ jobs:
       - name: Resolve tag
         id: tag
         run: |
-          # On a release event use the tag attached to the release.
-          # On a manual dispatch use the provided input.
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          # inputs.tag is set by both workflow_dispatch and workflow_call.
+          # Fall back to the release event tag for the release trigger.
+          if [ -n "${{ inputs.tag }}" ]; then
             TAG="${{ inputs.tag }}"
           else
             TAG="${{ github.event.release.tag_name }}"
