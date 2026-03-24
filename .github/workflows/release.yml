@@ -1,0 +1,32 @@
+name: Release Please
+
+on:
+  push:
+    branches:
+      - main
+
+# release-please needs write access to open and update release PRs,
+# bump package.json and create the GitHub Release / tag.
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    name: Create Release PR / Tag
+    runs-on: ubuntu-latest
+
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name:        ${{ steps.release.outputs.tag_name }}
+
+    steps:
+      - name: Run release-please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          # Configuration is read from release-please-config.json.
+          # The manifest (.release-please-manifest.json) tracks the
+          # current version so release-please can compute the next bump.
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json

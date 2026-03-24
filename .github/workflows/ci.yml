@@ -14,6 +14,35 @@ permissions:
   contents: read
 
 jobs:
+  commitlint:
+    name: Commit Lint
+    runs-on: ubuntu-latest
+    # Only validate commit messages on pull requests; direct pushes to
+    # main are prevented by branch protection once it has been set up.
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout repository (full history)
+        uses: actions/checkout@v4
+        with:
+          # Full history is required so commitlint can walk back to the
+          # merge-base and validate every commit in the pull request.
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate commit messages
+        uses: wagoid/commitlint-github-action@v6
+        with:
+          configFile: .commitlintrc.json
+
   build:
     name: Lint & Build
     runs-on: ubuntu-latest
